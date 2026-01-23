@@ -105,7 +105,8 @@ export default function Learn() {
           zoomOnScroll={false}
           panOnScroll={false}
           onNodeClick={(e, node) => {
-            if (node.id === "js") navigate("/learn/js")
+            // map visual node ids to lesson language slugs
+            if (node.id === "js") navigate("/learn/javascript")
           }}
         >
           <Controls showInteractive={false} />

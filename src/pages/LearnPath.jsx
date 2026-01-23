@@ -1,17 +1,20 @@
 import { useParams, useNavigate } from "react-router-dom"
-import { learnTrees } from "@u/constants/learnTrees"
+import lessons from "@u/lessons"
+import {
+  isSkillUnlocked,
+  isSkillCompleted,
+} from "@u/progress"
 
 export default function LearnPath() {
   const { lang } = useParams()
   const navigate = useNavigate()
 
-  const tree = learnTrees[lang]
+  // Gather lessons for this language in insertion order
+  const treeLessons = Object.values(lessons).filter((l) => l.lang === lang)
 
-  if (!tree) {
+  if (!treeLessons.length) {
     return (
-      <div className="min-h-dvh flex items-center justify-center">
-        Path not found
-      </div>
+      <div className="min-h-dvh flex items-center justify-center">Path not found</div>
     )
   }
 
@@ -20,60 +23,57 @@ export default function LearnPath() {
 
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-4xl font-semibold">{tree.title}</h1>
-        <p className="text-black/60 mt-2">{tree.description}</p>
+        <h1 className="text-4xl font-semibold">{lang.toUpperCase()} Path</h1>
+        <p className="text-black/60 mt-2">Unlock skills by completing them</p>
       </div>
 
       {/* Path */}
       <div className="mt-12 flex flex-col items-center w-full max-w-md">
+        {treeLessons.map((lesson, index) => {
+          const isLast = index === treeLessons.length - 1
+          const id = lesson.skill
+          const label = lesson.title
 
-        {tree.nodes.map((skill, index) => {
-          const isLast = index === tree.nodes.length - 1
+          const status = isSkillCompleted(lang, id)
+            ? "completed"
+            : isSkillUnlocked(lang, id)
+            ? "active"
+            : "locked"
 
           return (
-            <div key={skill.id} className="flex flex-col items-center w-full">
-
-              {/* Skill Node */}
+            <div key={id} className="flex flex-col items-center w-full">
               <div
                 className={`
                   w-full px-5 py-4 rounded-xl border-2 text-center transition
                   ${
-                    skill.status === "active"
+                    status === "active"
                       ? "border-black bg-black text-white cursor-pointer"
-                      : skill.status === "completed"
+                      : status === "completed"
                       ? "border-black bg-white text-black opacity-70"
                       : "border-black/20 bg-white text-black/40 cursor-not-allowed"
                   }
                 `}
                 onClick={() => {
-                  if (skill.status === "active") {
-                    navigate(`/learn/${lang}/${skill.id}`)
+                  if (status === "active") {
+                    navigate(`/learn/${lang}/${id}`)
                   }
                 }}
-                title={
-                  skill.status === "locked"
-                    ? "Complete previous skill to unlock"
-                    : ""
-                }
+                title={status === "locked" ? "Complete previous skill to unlock" : ""}
               >
-                <p className="font-medium">{skill.label}</p>
+                <p className="font-medium">{label}</p>
 
                 <p className="text-sm mt-1">
-                  {skill.status === "completed" && "✔ Completed"}
-                  {skill.status === "active" && "▶ Start"}
-                  {skill.status === "locked" && "🔒 Locked"}
+                  {status === "completed" && "✔ Completed"}
+                  {status === "active" && "▶ Start"}
+                  {status === "locked" && "🔒 Locked"}
                 </p>
               </div>
 
-              {/* Connector */}
-              {!isLast && (
-                <div className="w-px h-10 bg-black/20" />
-              )}
+              {!isLast && <div className="w-px h-10 bg-black/20" />}
             </div>
           )
         })}
       </div>
-
     </section>
   )
 }
