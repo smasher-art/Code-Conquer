@@ -40,7 +40,10 @@ console.log(score, name);`}
       </div>
 
       {/* RIGHT — PRACTICE */}
-      <div className="w-1/2 px-6 py-6 flex flex-col">
+      <div
+      className="w-1/2 px-6 py-6 flex flex-col
+      sticky top-20 h-[calc(100dvh-80px)]
+      ">
 
         <h2 className="text-xl font-semibold">Practice</h2>
 
