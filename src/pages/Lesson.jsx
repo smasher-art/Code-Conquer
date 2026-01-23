@@ -1,4 +1,6 @@
 import { useParams } from "react-router-dom"
+import Editor from "@monaco-editor/react"
+
 
 export default function Lesson() {
   const { lang, skill } = useParams()
@@ -66,16 +68,20 @@ console.log(score, name);`}
           </p>
         </div>
 
-        {/* Code Editor (fake for now) */}
-        <div className="mt-4 flex-1">
-          <textarea
-            className="
-              w-full h-full resize-none rounded-lg
-              border border-black/20
-              font-mono text-sm p-4
-              focus:outline-none focus:border-black
-            "
-            placeholder={`// write your code here`}
+        {/* Code Editor */}
+        <div className="mt-4 flex-1 border border-black/20 rounded-lg overflow-hidden">
+          <Editor
+            height="100%"
+            defaultLanguage="javascript"
+            defaultValue={`// write your code here`}
+            theme="vs-light"
+            options={{
+              fontSize: 14,
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              wordWrap: "on",
+              automaticLayout: true,
+            }}
           />
         </div>
 
