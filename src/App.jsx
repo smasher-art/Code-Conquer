@@ -4,9 +4,10 @@ import {Route, Routes} from "react-router-dom"
 
 import Home from '@p/Home'
 import Learn from '@p/Learn'
+import LearnPath from '@p/LearnPath'
+import Lesson from '@p/Lesson'
 import Navbar from '@c/navbar/Navbar'
 import ScrollToTop from '@c/ScrollToTop'
-import LearnPath from '@p/LearnPath'
 
 
 
@@ -39,6 +40,7 @@ function App() {
           <Route path='/' element={<Home/>} />
           <Route path='/learn' element={<Learn/>} />
           <Route path='/learn/:lang' element={<LearnPath/>} />
+          <Route path='/learn/:lang/:skill' element={<Lesson/>} />
         </Routes>
 
 
