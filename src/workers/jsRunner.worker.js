@@ -2,15 +2,23 @@ self.onmessage = (e) => {
   const code = e.data
   const logs = []
 
-  const console = {
-    log: (...args) => {
-      logs.push(
-        args
-        .map(arg => typeof arg === "string" ? arg : JSON.stringify(arg))
-        .join("\n")
-      )
+  const pushLog = (type, args) => {
+    logs.push({
+      type,
+      message: args
+        .map(arg =>
+          typeof arg === "string"
+            ? arg
+            : JSON.stringify(arg, null, 2)
+        )
+        .join("\n"),
+    })
+  }
 
-    },
+  const console = {
+    log: (...args) => pushLog("log", args),
+    warn: (...args) => pushLog("warn", args),
+    error: (...args) => pushLog("error", args),
   }
 
   try {
@@ -20,6 +28,13 @@ self.onmessage = (e) => {
 
     self.postMessage({ logs })
   } catch (err) {
-    self.postMessage({ error: err.message })
+    self.postMessage({
+      logs: [
+        {
+          type: "runtime",
+          message: err.message,
+        },
+      ],
+    })
   }
 }

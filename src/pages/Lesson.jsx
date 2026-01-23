@@ -8,6 +8,7 @@ export default function Lesson() {
   const editorRef = useRef(null)
   const workerRef = useRef(null)
   const [output, setOutput] = useState([])
+// each item = { type, message }
 
   const [isRunning, setIsRunning] = useState(false)
 
@@ -35,11 +36,11 @@ export default function Lesson() {
     workerRef.current = worker
 
     worker.onmessage = (e) => {
-      if (e.data.error) {
-        setOutput([`❌ Error: ${e.data.error}`])
-      } else {
-        setOutput(e.data.logs.length ? e.data.logs : ["(no output)"])
-      }
+      setOutput(
+        e.data.logs?.length
+          ? e.data.logs
+          : [{ type: "log", message: "(no output)" }]
+      )
 
       cleanup()
     }
@@ -133,9 +134,22 @@ console.log(score, name);`}
         </div>
 
         {/* Output */}
-        <div className="mt-3 bg-black/5 rounded p-3 text-sm font-mono min-h-20 max-h-100  whitespace-pre-wrap overflow-y-auto">
-          {output.map((line, i) => (
-            <div key={i}>{line}</div>
+        <div className="mt-3 bg-black/5 rounded p-3 text-sm font-mono min-h-20 max-h-100 whitespace-pre-wrap overflow-y-auto">
+          {output.map((item, i) => (
+            <div
+              key={i}
+              className={
+                item.type === "error" || item.type === "runtime"
+                  ? "text-red-600"
+                  : item.type === "warn"
+                  ? "text-yellow-600"
+                  : "text-black"
+              }
+            >
+              {item.type === "warn" && "⚠️ "}
+              {(item.type === "error" || item.type === "runtime") && "❌ "}
+              {item.message}
+            </div>
           ))}
         </div>
 
