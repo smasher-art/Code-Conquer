@@ -10,7 +10,7 @@ export default function Navbar() {
     <div
     className='h-20 p-4 flex items-center justify-between
     sticky top-0 bg-white/50 backdrop-blur-sm border-b border-black/10
-    px-40'>
+    px-40 z-9999'>
       <h1
       className='text-2xl font-semibold'>
         Code Conquer
