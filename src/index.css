@@ -4,3 +4,7 @@
   --font-Poppins: "Poppins", sans-serif;
   --font-JetBrains: "JetBrains Mono", monospace;
 }
+
+*{
+  scrollbar-width: thin;
+}

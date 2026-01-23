@@ -9,13 +9,19 @@ export default function Lesson() {
   const workerRef = useRef(null)
   const [output, setOutput] = useState([])
 
+  const [isRunning, setIsRunning] = useState(false)
+
   function handleEditorDidMount(editor) {
     editorRef.current = editor
   }
 
   function runCode() {
+    if (isRunning) return
+
     const code = editorRef.current.getValue()
     setOutput([])
+    setIsRunning(true)
+    document.body.style.cursor = "wait"
 
     // kill old worker if exists
     if (workerRef.current) {
@@ -34,18 +40,28 @@ export default function Lesson() {
       } else {
         setOutput(e.data.logs.length ? e.data.logs : ["(no output)"])
       }
-      worker.terminate()
+
+      cleanup()
     }
 
     worker.postMessage(code)
 
     // hard timeout (infinite loop protection)
     setTimeout(() => {
-      worker.terminate()
-      setOutput((prev) =>
-        prev.length ? prev : ["⏱ Execution timed out"]
-      )
+      if (workerRef.current) {
+        workerRef.current.terminate()
+        setOutput((prev) =>
+          prev.length ? prev : ["⏱ Execution timed out"]
+        )
+        cleanup()
+      }
     }, 2000)
+  }
+
+  function cleanup() {
+    setIsRunning(false)
+    document.body.style.cursor = "default"
+    workerRef.current = null
   }
 
   return (
@@ -117,7 +133,7 @@ console.log(score, name);`}
         </div>
 
         {/* Output */}
-        <div className="mt-3 bg-black/5 rounded p-3 text-sm font-mono min-h-[80px]">
+        <div className="mt-3 bg-black/5 rounded p-3 text-sm font-mono min-h-20 max-h-100  whitespace-pre-wrap overflow-y-auto">
           {output.map((line, i) => (
             <div key={i}>{line}</div>
           ))}
@@ -127,10 +143,18 @@ console.log(score, name);`}
         <div className="mt-4 flex gap-3">
           <button
             onClick={runCode}
-            className="px-4 py-2 border border-black rounded-md text-sm"
+            disabled={isRunning}
+            className={`
+              px-4 py-2 border border-black rounded-md text-sm
+              transition
+              ${isRunning
+                ? "opacity-50 cursor-wait"
+                : "cursor-pointer hover:bg-black/5"}
+            `}
           >
-            Run
+            {isRunning ? "Running..." : "Run"}
           </button>
+
 
           <button className="px-4 py-2 bg-black text-white rounded-md text-sm">
             Submit

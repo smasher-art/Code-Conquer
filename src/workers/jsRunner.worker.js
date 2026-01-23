@@ -4,7 +4,12 @@ self.onmessage = (e) => {
 
   const console = {
     log: (...args) => {
-      logs.push(args.join(" "))
+      logs.push(
+        args
+        .map(arg => typeof arg === "string" ? arg : JSON.stringify(arg))
+        .join("\n")
+      )
+
     },
   }
 
