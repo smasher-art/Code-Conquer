@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { navlinks } from '@u/constants/Navbar'
+import { navlinks } from '@u/constants/navbar'
 import { NavLink } from 'react-router-dom'
 
 

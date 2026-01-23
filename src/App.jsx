@@ -6,6 +6,7 @@ import Home from '@p/Home'
 import Learn from '@p/Learn'
 import Navbar from '@c/navbar/Navbar'
 import ScrollToTop from '@c/ScrollToTop'
+import LearnPath from '@p/LearnPath'
 
 
 
@@ -37,6 +38,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Home/>} />
           <Route path='/learn' element={<Learn/>} />
+          <Route path='/learn/:lang' element={<LearnPath/>} />
         </Routes>
 
 
