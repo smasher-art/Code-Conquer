@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom"
 import Editor from "@monaco-editor/react"
 
-
 export default function Lesson() {
   const { lang, skill } = useParams()
 
@@ -30,10 +29,6 @@ export default function Lesson() {
             <code className="mx-1 px-1 bg-black/5 rounded">var</code>.
           </p>
 
-          <p>
-            <strong>Example:</strong>
-          </p>
-
           <pre className="bg-black/5 p-4 rounded text-xs overflow-x-auto">
 {`let score = 10;
 const name = "Reaper";
@@ -41,34 +36,24 @@ const name = "Reaper";
 console.log(score, name);`}
           </pre>
 
-          <p>
-            Use <code>let</code> when the value may change and
-            <code>const</code> when it should stay constant.
-          </p>
-
         </div>
       </div>
 
       {/* RIGHT — PRACTICE */}
       <div className="w-1/2 px-6 py-6 flex flex-col">
 
-        <h2 className="text-xl font-semibold">
-          Practice
-        </h2>
+        <h2 className="text-xl font-semibold">Practice</h2>
 
         <p className="text-black/60 mt-1 text-sm">
           Write code to solve the task below
         </p>
 
-        {/* Problem */}
         <div className="mt-4 text-sm">
-          <p>
-            Create a variable called <code>age</code> and assign it
-            the value <code>18</code>. Then log it to the console.
-          </p>
+          Create a variable called <code>age</code> and assign it
+          the value <code>18</code>. Then log it to the console.
         </div>
 
-        {/* Code Editor */}
+        {/* Monaco Editor */}
         <div className="mt-4 flex-1 border border-black/20 rounded-lg overflow-hidden">
           <Editor
             height="100%"
@@ -87,27 +72,20 @@ console.log(score, name);`}
 
         {/* Actions */}
         <div className="mt-4 flex gap-3">
-          <button
-            className="px-4 py-2 border border-black rounded-md text-sm"
-          >
+          <button className="px-4 py-2 border border-black rounded-md text-sm">
             Run
           </button>
 
-          <button
-            className="px-4 py-2 bg-black text-white rounded-md text-sm"
-          >
+          <button className="px-4 py-2 bg-black text-white rounded-md text-sm">
             Submit
           </button>
 
-          <button
-            className="ml-auto px-4 py-2 text-sm underline"
-          >
+          <button className="ml-auto px-4 py-2 text-sm underline">
             Complete Lesson
           </button>
         </div>
 
       </div>
-
     </section>
   )
 }
