@@ -3,6 +3,7 @@ import {Route, Routes} from "react-router-dom"
 
 
 import Home from '@p/Home'
+import Learn from '@p/Learn'
 import Navbar from '@c/navbar/Navbar'
 import ScrollToTop from '@c/ScrollToTop'
 
@@ -35,6 +36,7 @@ function App() {
 
         <Routes>
           <Route path='/' element={<Home/>} />
+          <Route path='/learn' element={<Learn/>} />
         </Routes>
 
 
