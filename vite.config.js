@@ -13,6 +13,7 @@ export default defineConfig({
       "@c": path.resolve(__dirname, "/src/components"),
       "@p": path.resolve(__dirname, "/src/pages/"),
       "@u": path.resolve(__dirname, "/src/utils"),
+      "@w": path.resolve(__dirname, "/src/workers/"),
     }
   }
 })
