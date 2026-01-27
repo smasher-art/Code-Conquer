@@ -26,6 +26,21 @@ export default function Lesson() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showHints, setShowHints] = useState(false)
 
+  // Monaco language mapping and runtime support
+  const languageMap = {
+    javascript: "javascript",
+    js: "javascript",
+    react: "javascript",
+    python: "python",
+    py: "python",
+    cpp: "cpp",
+    cplusplus: "cpp",
+  }
+
+  const monacoLanguage = languageMap[lesson.lang] || "plaintext"
+  const runnableLanguages = ["javascript", "js"]
+  const isRunnable = runnableLanguages.includes(lesson.lang)
+
   // Check if skill is unlocked
   useEffect(() => {
     if (!isSkillUnlocked(lang, skill)) {
@@ -177,12 +192,13 @@ export default function Lesson() {
 
         {/* Monaco Editor */}
         <div className="mt-6 flex-1 border border-black/20 rounded-lg overflow-hidden flex flex-col">
-          <div className="bg-black/5 px-4 py-2 border-b border-black/10 text-xs font-mono text-black/60">
-            javascript
+          <div className="bg-black/5 px-4 py-2 border-b border-black/10 text-xs font-mono text-black/60 flex items-center justify-between">
+            <div>{lesson.lang.toUpperCase()}</div>
+            <div className="text-xs text-black/50">{monacoLanguage}</div>
           </div>
           <Editor
             height="100%"
-            defaultLanguage="javascript"
+            defaultLanguage={monacoLanguage}
             theme="vs-light"
             onMount={handleEditorDidMount}
             options={{
@@ -253,8 +269,14 @@ export default function Lesson() {
         {/* Actions */}
         <div className="mt-4 flex gap-3">
           <button
-            onClick={runCode}
-            disabled={isRunning || isSubmitting}
+            onClick={() => {
+              if (!isRunnable) {
+                setOutput([{ type: "runtime", message: "Runtime not supported for this language in-browser." }])
+                return
+              }
+              runCode()
+            }}
+            disabled={isRunning || isSubmitting || !isRunnable}
             className={`
               px-4 py-2 border border-black/30 rounded text-sm font-medium
               transition
@@ -267,6 +289,10 @@ export default function Lesson() {
           >
             {isRunning ? "Running..." : "Run"}
           </button>
+
+          {!isRunnable && (
+            <div className="ml-2 self-center text-xs text-black/50">Runtime not available — editor only</div>
+          )}
 
           <button
             onClick={handleSubmit}
