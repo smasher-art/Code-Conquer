@@ -42,24 +42,25 @@ export default function LearnPath() {
 
           return (
             <div key={id} className="flex flex-col items-center w-full">
-              <div
-                className={`
-                  w-full px-5 py-4 rounded-xl border-2 text-center transition
-                  ${
-                    status === "active"
-                      ? "border-black bg-black text-white cursor-pointer"
-                      : status === "completed"
-                      ? "border-black bg-white text-black opacity-70"
-                      : "border-black/20 bg-white text-black/40 cursor-not-allowed"
-                  }
-                `}
-                onClick={() => {
-                  if (status === "active") {
-                    navigate(`/learn/${lang}/${id}`)
-                  }
-                }}
-                title={status === "locked" ? "Complete previous skill to unlock" : ""}
-              >
+                  <div
+                    className={`
+                      w-full px-5 py-4 rounded-xl border-2 text-center transition
+                      ${
+                        status === "active"
+                          ? "border-black bg-black text-white cursor-pointer"
+                          : status === "completed"
+                          ? "border-black bg-white text-black opacity-70 cursor-pointer"
+                          : "border-black/20 bg-white text-black/40 cursor-not-allowed"
+                      }
+                    `}
+                    onClick={() => {
+                      // allow opening active or completed lessons for viewing
+                      if (status === "active" || status === "completed") {
+                        navigate(`/learn/${lang}/${id}`)
+                      }
+                    }}
+                    title={status === "locked" ? "Complete previous skill to unlock" : "Open lesson"}
+                  >
                 <p className="font-medium">{label}</p>
 
                 <p className="text-sm mt-1">

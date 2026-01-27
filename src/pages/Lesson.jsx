@@ -24,6 +24,7 @@ export default function Lesson() {
   const [isRunning, setIsRunning] = useState(false)
   const [judgeResult, setJudgeResult] = useState(null) // { isCorrect, feedback }
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showHints, setShowHints] = useState(false)
 
   // Check if skill is unlocked
   useEffect(() => {
@@ -128,6 +129,10 @@ export default function Lesson() {
             <span className="text-xs font-mono bg-black/5 px-2 py-1 rounded">
               {lang.toUpperCase()}
             </span>
+            <div className="ml-2 flex items-center gap-2">
+              <div className="text-xs px-2 py-1 bg-black/5 rounded font-medium">{lesson.xp} XP</div>
+              <div className="text-xs px-2 py-1 bg-black/5 rounded">Difficulty: {lesson.difficulty}</div>
+            </div>
             {skillCompleted && (
               <span className="text-xs font-mono bg-green-100 text-green-700 px-2 py-1 rounded">
                 ✓ Completed
@@ -140,6 +145,14 @@ export default function Lesson() {
           <div className="mt-6 space-y-4 text-sm leading-relaxed text-black/80">
             {lesson.theory.map((paragraph, i) => (
               <p key={i}>{paragraph}</p>
+            ))}
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(lesson.tags || []).map((t) => (
+              <div key={t} className="text-xs px-2 py-1 bg-black/5 rounded">
+                {t}
+              </div>
             ))}
           </div>
 
@@ -159,6 +172,8 @@ export default function Lesson() {
         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-900">
           {lesson.task}
         </div>
+
+        <div className="mt-3 text-sm text-black/60">Tests: {lesson.expectedOutput.length}</div>
 
         {/* Monaco Editor */}
         <div className="mt-6 flex-1 border border-black/20 rounded-lg overflow-hidden flex flex-col">
@@ -224,6 +239,17 @@ export default function Lesson() {
           </div>
         )}
 
+        {showHints && lesson.hints && (
+          <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-900">
+            <div className="font-medium mb-1">Hints</div>
+            <ul className="list-disc list-inside text-sm">
+              {lesson.hints.map((h, i) => (
+                <li key={i}>{h}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="mt-4 flex gap-3">
           <button
@@ -256,6 +282,13 @@ export default function Lesson() {
             `}
           >
             {isSubmitting ? "Checking..." : skillCompleted ? "Completed" : "Submit"}
+          </button>
+
+          <button
+            onClick={() => setShowHints((s) => !s)}
+            className="ml-auto px-3 py-2 text-sm rounded border border-black/10"
+          >
+            {showHints ? "Hide Hints" : "Show Hints"}
           </button>
 
           {lesson.nextSkill && skillCompleted && (
