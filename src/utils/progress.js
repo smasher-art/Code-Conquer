@@ -1,5 +1,7 @@
 // localStorage utility for tracking progress
 
+import lessons from "./lessons"
+
 const STORAGE_KEY = "bebo_progress"
 
 export function getProgress() {
@@ -12,13 +14,29 @@ export function getProgress() {
 }
 
 function getDefaultProgress() {
+  // Derive first lesson per language (by lowest order) and unlock it by default
+  const byLang = {}
+  Object.values(lessons).forEach((l) => {
+    if (!byLang[l.lang]) byLang[l.lang] = []
+    byLang[l.lang].push(l)
+  })
+
+  const unlockedSkills = {}
+  const completedSkills = {}
+
+  Object.entries(byLang).forEach(([lang, arr]) => {
+    // pick lesson with smallest order (fallback to first item)
+    const sorted = arr.slice().sort((a, b) => (a.order || 0) - (b.order || 0))
+    const first = sorted[0]
+    if (first) unlockedSkills[lang] = [first.skill]
+    else unlockedSkills[lang] = []
+
+    completedSkills[lang] = []
+  })
+
   return {
-    unlockedSkills: {
-      javascript: ["variables"],
-    },
-    completedSkills: {
-      javascript: [],
-    },
+    unlockedSkills,
+    completedSkills,
   }
 }
 

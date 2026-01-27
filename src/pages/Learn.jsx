@@ -4,6 +4,7 @@ import "reactflow/dist/style.css"
 import { useNavigate } from "react-router-dom"
 import getLanguages from "@u/languages"
 import { getProgress } from "@u/progress"
+import lessons from "@u/lessons"
 
 export default function Learn() {
   const navigate = useNavigate()
@@ -48,33 +49,45 @@ export default function Learn() {
           ...baseNodeStyle,
           background: unlocked ? "black" : "#00000010",
           color: unlocked ? "white" : "#00000070",
-          cursor: unlocked ? "pointer" : "not-allowed",
+          cursor: "pointer",
           border: unlocked ? "2px solid black" : "1px solid #e5e7eb",
         },
       }
     })
 
-    // for child languages, place below their parent (same x as parent if available)
-    const childNodes = children.map((lang, idx) => {
-      const parentNode = topNodes.find((n) => n.id === lang.parent)
-      const x = parentNode ? parentNode.position.x : 50 + idx * spacing
-      const y = 320
-      const unlocked = (progress.unlockedSkills[lang.slug] || []).length > 0
-      return {
-        id: lang.slug,
-        position: { x, y },
-        data: { label: lang.label },
-        style: {
-          ...baseNodeStyle,
-          width: 90,
-          height: 90,
-          background: unlocked ? "black" : "#00000010",
-          color: unlocked ? "white" : "#00000070",
-          cursor: unlocked ? "pointer" : "not-allowed",
-          border: unlocked ? "2px solid black" : "1px solid #e5e7eb",
-        },
-      }
-    })
+    // helper: check whether all lessons for a language are completed
+    const completed = progress.completedSkills || {}
+    const isLangFullyCompleted = (langSlug) => {
+      const lessonsForLang = Object.values(lessons).filter((l) => l.lang === langSlug)
+      if (!lessonsForLang.length) return false
+      const completedList = completed[langSlug] || []
+      // ensure every lesson skill for the language is present in completedList
+      return lessonsForLang.every((ls) => completedList.includes(ls.skill))
+    }
+
+    // for child languages, only show them when their parent language is fully completed
+    const childNodes = children
+      .filter((lang) => isLangFullyCompleted(lang.parent))
+      .map((lang, idx) => {
+        const parentNode = topNodes.find((n) => n.id === lang.parent)
+        const x = parentNode ? parentNode.position.x : 50 + idx * spacing
+        const y = 320
+        const unlocked = (progress.unlockedSkills[lang.slug] || []).length > 0
+        return {
+          id: lang.slug,
+          position: { x, y },
+          data: { label: lang.label },
+          style: {
+            ...baseNodeStyle,
+            width: 90,
+            height: 90,
+            background: unlocked ? "black" : "#00000010",
+            color: unlocked ? "white" : "#00000070",
+            cursor: "pointer",
+            border: unlocked ? "2px solid black" : "1px solid #e5e7eb",
+          },
+        }
+      })
 
     return [root, ...topNodes, ...childNodes]
   }, [languages, progress])
@@ -82,6 +95,13 @@ export default function Learn() {
   const edges = useMemo(() => {
     const top = languages.filter((l) => !l.parent)
     const children = languages.filter((l) => l.parent)
+    const completed = progress.completedSkills || {}
+    const isLangFullyCompleted = (langSlug) => {
+      const lessonsForLang = Object.values(lessons).filter((l) => l.lang === langSlug)
+      if (!lessonsForLang.length) return false
+      const completedList = completed[langSlug] || []
+      return lessonsForLang.every((ls) => completedList.includes(ls.skill))
+    }
 
     const rootEdges = top.map((lang) => ({
       id: `e-root-${lang.slug}`,
@@ -90,12 +110,14 @@ export default function Learn() {
       style: { strokeWidth: 2, strokeOpacity: (progress.unlockedSkills[lang.slug] || []).length ? 1 : 0.4 },
     }))
 
-    const parentEdges = children.map((lang) => ({
-      id: `e-${lang.parent}-${lang.slug}`,
-      source: lang.parent,
-      target: lang.slug,
-      style: { strokeWidth: 2, strokeOpacity: (progress.unlockedSkills[lang.slug] || []).length ? 1 : 0.4 },
-    }))
+    const parentEdges = children
+      .filter((lang) => isLangFullyCompleted(lang.parent))
+      .map((lang) => ({
+        id: `e-${lang.parent}-${lang.slug}`,
+        source: lang.parent,
+        target: lang.slug,
+        style: { strokeWidth: 2, strokeOpacity: (progress.unlockedSkills[lang.slug] || []).length ? 1 : 0.4 },
+      }))
 
     return [...rootEdges, ...parentEdges]
   }, [languages, progress])
@@ -115,9 +137,10 @@ export default function Learn() {
           zoomOnScroll={false}
           panOnScroll={false}
           onNodeClick={(e, node) => {
-            // Navigate to language path if unlocked
-            const unlocked = (progress.unlockedSkills[node.id] || []).length > 0
-            if (unlocked) navigate(`/learn/${node.id}`)
+            // Navigate to language path for any language node (root excluded)
+            if (node.id && node.id !== "root") {
+              navigate(`/learn/${node.id}`)
+            }
           }}
         >
           <Controls showInteractive={false} />

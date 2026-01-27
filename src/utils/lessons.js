@@ -185,6 +185,85 @@ console.log(text.substring(0, 4));  // Java`,
     nextSkill: null,
   },
 
+  // Additional JavaScript lessons
+  "javascript:operators": {
+    id: "javascript:operators",
+    lang: "javascript",
+    skill: "operators",
+    title: "Operators & Precedence",
+    difficulty: 2,
+    xp: 70,
+    tags: ["operators", "expressions"],
+    timeMinutes: 8,
+    order: 7,
+    theory: [
+      "Understand arithmetic, assignment, and comparison operators.",
+      "Operator precedence determines how expressions are evaluated.",
+      "Short-circuit logical operators can be used for defaults and guards."
+    ],
+    codeExample: `const a = 2 + 3 * 4; // precedence
+console.log(a);
+console.log( (5 > 3) && (2 < 4) );`,
+    task: "Evaluate a mixed arithmetic expression and log the result.",
+    initialCode: `// Compute an expression and log it\n`,
+    expectedOutput: ["14"],
+    hints: ["Remember multiplication has higher precedence than addition."],
+    nextSkill: "conditions",
+  },
+
+  "javascript:conditions": {
+    id: "javascript:conditions",
+    lang: "javascript",
+    skill: "conditions",
+    title: "Conditionals",
+    difficulty: 2,
+    xp: 75,
+    tags: ["conditionals", "logic"],
+    timeMinutes: 9,
+    order: 8,
+    theory: [
+      "Use if/else to run code selectively based on a condition.",
+      "Combine multiple checks with logical operators.",
+      "Switch statements handle multiple branches when appropriate."
+    ],
+    codeExample: `const n = 5;
+if (n % 2 === 0) console.log('even');
+else console.log('odd');`,
+    task: "Check whether a number is odd or even and log the result.",
+    initialCode: `// Check a number and log 'odd' or 'even'\n`,
+    expectedOutput: ["odd"],
+    hints: ["Use modulus (%) to test divisibility by 2."],
+    nextSkill: "objects",
+  },
+
+  "javascript:objects": {
+    id: "javascript:objects",
+    lang: "javascript",
+    skill: "objects",
+    title: "Objects & Maps",
+    difficulty: 3,
+    xp: 90,
+    tags: ["objects", "maps"],
+    timeMinutes: 12,
+    order: 9,
+    theory: [
+      "Objects store keyed collections of values.",
+      "Access properties with dot or bracket notation.",
+      "Maps are built-in collections for key/value pairs with arbitrary keys."
+    ],
+    codeExample: `const user = { name: 'Sam', age: 30 };
+console.log(user.name);
+
+const map = new Map();
+map.set('k', 1);
+console.log(map.get('k'));`,
+    task: "Create an object with name and age, then log name.",
+    initialCode: `// Create an object and log one property\n`,
+    expectedOutput: ["Sam"],
+    hints: ["Use curly braces to create an object and access property via dot notation."],
+    nextSkill: null,
+  },
+
   // React path (UI-focused, downstream of JavaScript)
   "react:components": {
     id: "react:components",
@@ -302,6 +381,60 @@ function Counter() {
     nextSkill: null,
   },
 
+  // React additional lessons
+  "react:routing": {
+    id: "react:routing",
+    lang: "react",
+    parent: "javascript",
+    skill: "routing",
+    title: "Client-side Routing",
+    difficulty: 3,
+    xp: 100,
+    tags: ["react", "routing"],
+    timeMinutes: 16,
+    order: 105,
+    theory: [
+      "Routing allows multiple views inside a single-page app.",
+      "React Router maps URLs to components.",
+      "Route params and nested routes power dynamic pages."
+    ],
+    codeExample: `// Example route setup
+<Routes>
+  <Route path='/' element={<Home/>} />
+  <Route path='/about' element={<About/>} />
+</Routes>`,
+    task: "Set up a basic route to render a component at '/' and '/about'.",
+    initialCode: `// Configure basic routes\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Use a Router and define Routes and Route components."],
+    nextSkill: "react:context",
+  },
+
+  "react:context": {
+    id: "react:context",
+    lang: "react",
+    parent: "javascript",
+    skill: "context",
+    title: "Context & Global State",
+    difficulty: 4,
+    xp: 130,
+    tags: ["react", "context", "state"],
+    timeMinutes: 22,
+    order: 106,
+    theory: [
+      "Context provides a way to share values across the component tree.",
+      "Avoid prop-drilling using Context.Provider and useContext hook.",
+      "Combine context with reducers for predictable state updates."
+    ],
+    codeExample: `const MyContext = createContext();
+<MyContext.Provider value={value}>...</MyContext.Provider>`,
+    task: "Create a Context and consume its value in a child component.",
+    initialCode: `// Create and use a React Context\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Use createContext and useContext to access the value."],
+    nextSkill: null,
+  },
+
   // Python path (display-only for now)
   "python:basics": {
     id: "python:basics",
@@ -380,6 +513,56 @@ print(add(2,3))
     nextSkill: null,
   },
 
+  // Python additional lessons
+  "python:data-structures": {
+    id: "python:data-structures",
+    lang: "python",
+    skill: "data-structures",
+    title: "Lists & Dictionaries",
+    difficulty: 2,
+    xp: 85,
+    tags: ["python", "collections"],
+    timeMinutes: 14,
+    order: 204,
+    theory: [
+      "Lists are ordered collections; dictionaries map keys to values.",
+      "Use list comprehensions to transform lists concisely.",
+      "Dictionaries are efficient for key-based lookup."
+    ],
+    codeExample: `nums = [1,2,3]
+print([n*2 for n in nums])
+d = {'a':1}
+print(d['a'])`,
+    task: "Double a list of numbers using a comprehension and access a dict value.",
+    initialCode: `# List comprehension and dict access\n`,
+    expectedOutput: ["[2, 4, 6]", "1"],
+    hints: ["Use [n*2 for n in nums] and d['key'] to access."],
+    nextSkill: null,
+  },
+
+  "python:modules": {
+    id: "python:modules",
+    lang: "python",
+    skill: "modules",
+    title: "Modules & Imports",
+    difficulty: 3,
+    xp: 95,
+    tags: ["python", "modules"],
+    timeMinutes: 16,
+    order: 205,
+    theory: [
+      "Split code into modules and import functions and values.",
+      "Use __name__ == '__main__' to make modules runnable.",
+      "Standard library provides many useful modules (math, json, os)."
+    ],
+    codeExample: `# mymodule.py\ndef add(a,b):\n  return a+b\n\n# main.py\nfrom mymodule import add\nprint(add(1,2))`,
+    task: "Import a function from another module and use it.",
+    initialCode: `# Demonstrate importing a function\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Use from module import function or import module."],
+    nextSkill: null,
+  },
+
   // C++ path (basic placeholders)
   "cpp:basics": {
     id: "cpp:basics",
@@ -435,6 +618,31 @@ int main() {
     initialCode: `// Use a for loop to print 0..2\n`,
     expectedOutput: ["(rendered)"],
     hints: ["Remember to declare loop variable type.", "Use cout for output."],
+    nextSkill: null,
+  },
+
+  // Additional C++ lesson
+  "cpp:functions": {
+    id: "cpp:functions",
+    lang: "cpp",
+    skill: "functions",
+    title: "Functions (C++)",
+    difficulty: 3,
+    xp: 95,
+    tags: ["cpp", "functions"],
+    timeMinutes: 16,
+    order: 403,
+    theory: [
+      "Define reusable functions with typed parameters and return types.",
+      "Pass arguments by value or reference.",
+      "Use function prototypes and separate implementations."
+    ],
+    codeExample: `int add(int a, int b) { return a + b; }
+cout << add(2,3) << endl;`,
+    task: "Write a function that adds two integers and returns the sum.",
+    initialCode: `// Define add function and call it\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Declare the function signature and return the sum."],
     nextSkill: null,
   },
 };
