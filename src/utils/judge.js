@@ -15,6 +15,13 @@ export function judgeOutput(userOutput, expectedOutput) {
   // userOutput: array of log lines
   // expectedOutput: array of expected strings
   // Returns { isCorrect: boolean, feedback: string }
+  // Special-case UI-rendered lessons where expectedOutput is a placeholder
+  if (Array.isArray(expectedOutput) && expectedOutput.length === 1 && expectedOutput[0] === '(rendered)') {
+    return {
+      isCorrect: true,
+      feedback: 'Rendered (UI-based) — manual verification',
+    }
+  }
 
   const normalized = normalizeOutput(userOutput)
 

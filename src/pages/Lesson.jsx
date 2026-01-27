@@ -64,6 +64,29 @@ export default function Lesson() {
     editor.setValue(lesson.initialCode)
   }
 
+  // When lesson changes, reload editor contents and reset state
+  useEffect(() => {
+    // terminate any running worker
+    if (workerRef.current) {
+      try {
+        workerRef.current.terminate()
+      } catch (_) {}
+      workerRef.current = null
+    }
+
+    setOutput([])
+    setJudgeResult(null)
+    setIsRunning(false)
+
+    if (editorRef.current) {
+      try {
+        editorRef.current.setValue(lesson.initialCode)
+      } catch (_) {
+        // ignore if editor not ready
+      }
+    }
+  }, [lessonKey])
+
   // Fetch available languages from runner server so we can enable server-side runs
   useEffect(() => {
     const runnerUrl = (import.meta.env?.VITE_RUNNER_URL) || 'http://localhost:5000'
@@ -163,16 +186,33 @@ export default function Lesson() {
         const data = await res.json()
         const out = []
 
+        // Treat compileOutput as error messages so they don't affect judging
         if (data.compileOutput) {
-          out.push({ type: 'log', message: data.compileOutput })
+          data.compileOutput
+            .toString()
+            .split(/\r?\n/)
+            .map((l) => l.trim())
+            .filter(Boolean)
+            .forEach((line) => out.push({ type: 'error', message: line }))
         }
 
+        // Split stdout into separate log lines (important for line-by-line judging)
         if (data.stdout) {
-          out.push({ type: 'log', message: data.stdout })
+          data.stdout
+            .toString()
+            .split(/\r?\n/)
+            .map((l) => l.trim())
+            .filter(Boolean)
+            .forEach((line) => out.push({ type: 'log', message: line }))
         }
 
         if (data.stderr) {
-          out.push({ type: 'error', message: data.stderr })
+          data.stderr
+            .toString()
+            .split(/\r?\n/)
+            .map((l) => l.trim())
+            .filter(Boolean)
+            .forEach((line) => out.push({ type: 'error', message: line }))
         }
 
         if (data.error) {
@@ -275,6 +315,7 @@ export default function Lesson() {
             <div className="text-xs text-black/50">{monacoLanguage}</div>
           </div>
           <Editor
+            key={lessonKey}
             height="100%"
             defaultLanguage={monacoLanguage}
             theme="vs-light"
