@@ -41,6 +41,9 @@ export default function Lesson() {
   const runnableLanguages = ["javascript", "js"]
   const isRunnable = runnableLanguages.includes(lesson.lang)
 
+  const [availableLanguages, setAvailableLanguages] = useState([])
+  const isRemoteRunnable = availableLanguages.includes(lesson.lang)
+
   // Check if skill is unlocked
   useEffect(() => {
     if (!isSkillUnlocked(lang, skill)) {
@@ -61,6 +64,28 @@ export default function Lesson() {
     editor.setValue(lesson.initialCode)
   }
 
+  // Fetch available languages from runner server so we can enable server-side runs
+  useEffect(() => {
+    const runnerUrl = (import.meta.env?.VITE_RUNNER_URL) || 'http://localhost:5000'
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch(`${runnerUrl}/languages`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (!cancelled && data.languages) {
+          setAvailableLanguages(data.languages.map((l) => l.key))
+        }
+      } catch (e) {
+        // ignore - server may be offline
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [lang, skill])
+
   function runCode() {
     if (isRunning || isSubmitting) return
 
@@ -70,46 +95,99 @@ export default function Lesson() {
     setIsRunning(true)
     document.body.style.cursor = "wait"
 
-    // kill old worker if exists
-    if (workerRef.current) {
-      workerRef.current.terminate()
-    }
-
-    const worker = new Worker(
-      new URL("../workers/jsRunner.worker.js", import.meta.url)
-    )
-
-    workerRef.current = worker
-
-    worker.onmessage = (e) => {
-      setOutput(
-        e.data.logs?.length
-          ? e.data.logs
-          : [{ type: "log", message: "(no output)" }]
-      )
-
-      cleanup()
-    }
-
-    worker.onerror = (err) => {
-      setOutput([{ type: "error", message: err.message }])
-      cleanup()
-    }
-
-    worker.postMessage(code)
-
-    // hard timeout (infinite loop protection)
-    setTimeout(() => {
+    // If the language is runnable in-browser (JS), use the worker.
+    if (isRunnable) {
       if (workerRef.current) {
         workerRef.current.terminate()
-        setOutput((prev) =>
-          prev.length
-            ? prev
-            : [{ type: "runtime", message: "⏱ Execution timed out" }]
+      }
+
+      const worker = new Worker(
+        new URL("../workers/jsRunner.worker.js", import.meta.url)
+      )
+
+      workerRef.current = worker
+
+      worker.onmessage = (e) => {
+        setOutput(
+          e.data.logs?.length
+            ? e.data.logs
+            : [{ type: "log", message: "(no output)" }]
         )
+
         cleanup()
       }
-    }, 2000)
+
+      worker.onerror = (err) => {
+        setOutput([{ type: "error", message: err.message }])
+        cleanup()
+      }
+
+      worker.postMessage(code)
+
+      // hard timeout (infinite loop protection)
+      setTimeout(() => {
+        if (workerRef.current) {
+          workerRef.current.terminate()
+          setOutput((prev) =>
+            prev.length
+              ? prev
+              : [{ type: "runtime", message: "⏱ Execution timed out" }]
+          )
+          cleanup()
+        }
+      }, 2000)
+      return
+    }
+
+    // Otherwise, send code to backend runner for compilation/execution
+    ;(async () => {
+      const runnerUrl = (import.meta.env?.VITE_RUNNER_URL) || 'http://localhost:5000'
+      if (!isRemoteRunnable) {
+        setOutput([{ type: 'runtime', message: 'Runtime not available for this language.' }])
+        cleanup()
+        return
+      }
+      try {
+        const res = await fetch(`${runnerUrl}/run`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ language: lesson.lang, code }),
+        })
+
+        if (!res.ok) {
+          const text = await res.text()
+          setOutput([{ type: 'error', message: `Runner error: ${res.status} ${text}` }])
+          return
+        }
+
+        const data = await res.json()
+        const out = []
+
+        if (data.compileOutput) {
+          out.push({ type: 'log', message: data.compileOutput })
+        }
+
+        if (data.stdout) {
+          out.push({ type: 'log', message: data.stdout })
+        }
+
+        if (data.stderr) {
+          out.push({ type: 'error', message: data.stderr })
+        }
+
+        if (data.error) {
+          out.push({ type: 'runtime', message: data.error })
+        }
+
+        if (out.length === 0) out.push({ type: 'log', message: '(no output)' })
+
+        setOutput(out)
+      } catch (err) {
+        setOutput([{ type: 'error', message: String(err) }])
+      } finally {
+        cleanup()
+      }
+    })()
   }
 
   function handleSubmit() {
@@ -270,13 +348,13 @@ export default function Lesson() {
         <div className="mt-4 flex gap-3">
           <button
             onClick={() => {
-              if (!isRunnable) {
-                setOutput([{ type: "runtime", message: "Runtime not supported for this language in-browser." }])
+              if (!isRunnable && !isRemoteRunnable) {
+                setOutput([{ type: "runtime", message: "Runtime not available for this language." }])
                 return
               }
               runCode()
             }}
-            disabled={isRunning || isSubmitting || !isRunnable}
+            disabled={isRunning || isSubmitting || (!isRunnable && !isRemoteRunnable)}
             className={`
               px-4 py-2 border border-black/30 rounded text-sm font-medium
               transition
@@ -290,9 +368,7 @@ export default function Lesson() {
             {isRunning ? "Running..." : "Run"}
           </button>
 
-          {!isRunnable && (
-            <div className="ml-2 self-center text-xs text-black/50">Runtime not available — editor only</div>
-          )}
+
 
           <button
             onClick={handleSubmit}

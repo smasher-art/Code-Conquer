@@ -16,3 +16,5 @@ export const learnTrees = {
   // python: { ... }
   // cpp: { ... }
 }
+// learnTrees removed — unused in the codebase
+export const learnTrees = {}
