@@ -32,11 +32,14 @@ export default function Learn() {
       style: { ...baseNodeStyle, background: "white", color: "black", border: "2px solid black" },
     }
 
-    const langNodes = languages.map((lang, idx) => {
-      const spacing = 160
+    // split languages into top-level (no parent) and children (with parent)
+    const top = languages.filter((l) => !l.parent)
+    const children = languages.filter((l) => l.parent)
+
+    const spacing = 160
+    const topNodes = top.map((lang, idx) => {
       const x = 50 + idx * spacing
       const unlocked = (progress.unlockedSkills[lang.slug] || []).length > 0
-
       return {
         id: lang.slug,
         position: { x, y: 180 },
@@ -51,16 +54,50 @@ export default function Learn() {
       }
     })
 
-    return [root, ...langNodes]
+    // for child languages, place below their parent (same x as parent if available)
+    const childNodes = children.map((lang, idx) => {
+      const parentNode = topNodes.find((n) => n.id === lang.parent)
+      const x = parentNode ? parentNode.position.x : 50 + idx * spacing
+      const y = 320
+      const unlocked = (progress.unlockedSkills[lang.slug] || []).length > 0
+      return {
+        id: lang.slug,
+        position: { x, y },
+        data: { label: lang.label },
+        style: {
+          ...baseNodeStyle,
+          width: 90,
+          height: 90,
+          background: unlocked ? "black" : "#00000010",
+          color: unlocked ? "white" : "#00000070",
+          cursor: unlocked ? "pointer" : "not-allowed",
+          border: unlocked ? "2px solid black" : "1px solid #e5e7eb",
+        },
+      }
+    })
+
+    return [root, ...topNodes, ...childNodes]
   }, [languages, progress])
 
   const edges = useMemo(() => {
-    return languages.map((lang) => ({
+    const top = languages.filter((l) => !l.parent)
+    const children = languages.filter((l) => l.parent)
+
+    const rootEdges = top.map((lang) => ({
       id: `e-root-${lang.slug}`,
       source: "root",
       target: lang.slug,
       style: { strokeWidth: 2, strokeOpacity: (progress.unlockedSkills[lang.slug] || []).length ? 1 : 0.4 },
     }))
+
+    const parentEdges = children.map((lang) => ({
+      id: `e-${lang.parent}-${lang.slug}`,
+      source: lang.parent,
+      target: lang.slug,
+      style: { strokeWidth: 2, strokeOpacity: (progress.unlockedSkills[lang.slug] || []).length ? 1 : 0.4 },
+    }))
+
+    return [...rootEdges, ...parentEdges]
   }, [languages, progress])
 
   return (

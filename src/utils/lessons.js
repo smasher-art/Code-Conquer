@@ -184,6 +184,259 @@ console.log(text.substring(0, 4));  // Java`,
     hints: ["Use the toUpperCase() string method.", "Store the string in a variable before logging."],
     nextSkill: null,
   },
+
+  // React path (UI-focused, downstream of JavaScript)
+  "react:components": {
+    id: "react:components",
+    lang: "react",
+    parent: "javascript",
+    skill: "components",
+    title: "React Components",
+    difficulty: 2,
+    xp: 90,
+    tags: ["react", "components", "ui"],
+    timeMinutes: 12,
+    order: 101,
+    theory: [
+      "React apps are built from components — reusable UI pieces.",
+      "Components can be function components that return JSX.",
+      "Props let you pass data into a component from its parent."
+    ],
+    codeExample: `function Greeting(props) {
+  return <div>Hello, {props.name}</div>
+}
+
+// Usage
+<Greeting name="Alex" />`,
+    task: "Create a simple functional component that renders a name passed via props.",
+    initialCode: `// Create a function component that returns JSX\n// Use props.name to render the passed name\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Return JSX from the function.", "Accept props and use props.name inside JSX."],
+    nextSkill: "props-state",
+  },
+
+  "react:props-state": {
+    id: "react:props-state",
+    lang: "react",
+    parent: "javascript",
+    skill: "props-state",
+    title: "Props & State",
+    difficulty: 3,
+    xp: 110,
+    tags: ["react", "state", "props"],
+    timeMinutes: 18,
+    order: 102,
+    theory: [
+      "Props are read-only inputs to components; state manages internal component data.",
+      "Use the useState hook to hold and update local state in functional components.",
+      "State changes trigger re-renders to reflect the updated UI."
+    ],
+    codeExample: `import { useState } from 'react'
+
+function Counter() {
+  const [count, setCount] = useState(0)
+  return <button onClick={() => setCount(count + 1)}>{count}</button>
+}`,
+    task: "Implement a counter component that increments a value when clicked.",
+    initialCode: `// Implement a counter using useState\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Import and use useState.", "Render the count and update it on click."],
+    nextSkill: "hooks",
+  },
+
+  "react:hooks": {
+    id: "react:hooks",
+    lang: "react",
+    parent: "javascript",
+    skill: "hooks",
+    title: "React Hooks",
+    difficulty: 3,
+    xp: 120,
+    tags: ["react", "hooks", "effects"],
+    timeMinutes: 20,
+    order: 103,
+    theory: [
+      "Hooks let you use state and lifecycle features inside function components.",
+      "useEffect runs side effects after render; cleanup helps avoid leaks.",
+      "Custom hooks let you extract reusable logic into functions."
+    ],
+    codeExample: `useEffect(() => {
+  // fetch or subscribe
+  return () => {
+    // cleanup
+  }
+}, [])
+`,
+    task: "Use useEffect to run a side-effect once after the component mounts.",
+    initialCode: `// Use useEffect with an empty dependency array\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Pass [] as the dependency array to run once.", "Place side-effect logic inside useEffect."],
+    nextSkill: "forms",
+  },
+
+  "react:forms": {
+    id: "react:forms",
+    lang: "react",
+    parent: "javascript",
+    skill: "forms",
+    title: "Forms & Controlled Inputs",
+    difficulty: 3,
+    xp: 100,
+    tags: ["react", "forms", "inputs"],
+    timeMinutes: 16,
+    order: 104,
+    theory: [
+      "Controlled inputs mirror form values in component state.",
+      "Update state on input events and use state as the input value.",
+      "Handle form submission by preventing default and reading state."
+    ],
+    codeExample: `function Form() {
+  const [value, setValue] = useState('')
+  return <input value={value} onChange={e => setValue(e.target.value)} />
+}
+`,
+    task: "Create a controlled text input and log its value on submit.",
+    initialCode: `// Create controlled input and handle submit\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Use state to hold the input value.", "Use onChange to update state."],
+    nextSkill: null,
+  },
+
+  // Python path (display-only for now)
+  "python:basics": {
+    id: "python:basics",
+    lang: "python",
+    skill: "basics",
+    title: "Python Basics",
+    difficulty: 1,
+    xp: 60,
+    tags: ["python", "basics"],
+    timeMinutes: 8,
+    order: 201,
+    theory: [
+      "Python uses indentation to denote blocks.",
+      "Common types include int, float, str, list, and dict.",
+      "Use print() to output values to the console."
+    ],
+    codeExample: `x = 5
+print(x)
+`,
+    task: "Assign a variable and print it.",
+    initialCode: `# Assign a variable and print it\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Use print(variable)", "Remember Python uses # for comments."],
+    nextSkill: "control",
+  },
+
+  "python:control": {
+    id: "python:control",
+    lang: "python",
+    skill: "control",
+    title: "Control Flow",
+    difficulty: 2,
+    xp: 80,
+    tags: ["python", "control-flow"],
+    timeMinutes: 12,
+    order: 202,
+    theory: [
+      "Use if/elif/else to branch logic.",
+      "Loops include for and while.",
+      "Indentation defines the block scope."
+    ],
+    codeExample: `for i in range(3):
+  print(i)
+`,
+    task: "Print numbers from 0 to 2 using a loop.",
+    initialCode: `# Loop from 0 to 2 and print\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Use range(3) to iterate three times."],
+    nextSkill: "functions",
+  },
+
+  "python:functions": {
+    id: "python:functions",
+    lang: "python",
+    skill: "functions",
+    title: "Functions",
+    difficulty: 2,
+    xp: 90,
+    tags: ["python", "functions"],
+    timeMinutes: 14,
+    order: 203,
+    theory: [
+      "Define functions with def and return values.",
+      "Parameters accept inputs; functions can be reused.",
+      "Docstrings document behavior."
+    ],
+    codeExample: `def add(a, b):
+  return a + b
+
+print(add(2,3))
+`,
+    task: "Write a function that adds two numbers and prints the result.",
+    initialCode: `# Define an add function and call it\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Define with def and return the sum."],
+    nextSkill: null,
+  },
+
+  // C++ path (basic placeholders)
+  "cpp:basics": {
+    id: "cpp:basics",
+    lang: "cpp",
+    skill: "basics",
+    title: "C++ Basics",
+    difficulty: 2,
+    xp: 70,
+    tags: ["cpp", "basics"],
+    timeMinutes: 12,
+    order: 401,
+    theory: [
+      "C++ is a statically typed language with manual memory control.",
+      "Basic types include int, double, char, and std::string.",
+      "Use std::cout to print to the console."
+    ],
+    codeExample: `#include <iostream>
+using namespace std;
+
+int main() {
+  int x = 5;
+  cout << x << endl;
+  return 0;
+}`,
+    task: "Declare an integer variable and print it using std::cout.",
+    initialCode: `// C++ snippet (main function)
+// Declare an int and print it
+`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Include <iostream> and use std::cout.", "End lines with << endl; to flush output."],
+    nextSkill: "cpp:control",
+  },
+
+  "cpp:control": {
+    id: "cpp:control",
+    lang: "cpp",
+    skill: "control",
+    title: "Control Flow (C++)",
+    difficulty: 3,
+    xp: 90,
+    tags: ["cpp", "control-flow"],
+    timeMinutes: 15,
+    order: 402,
+    theory: [
+      "C++ uses if/else and loops similar to other languages.",
+      "Pay attention to types and loop boundaries.",
+      "Use for and while loops to iterate."
+    ],
+    codeExample: `for (int i = 0; i < 3; ++i) {
+  cout << i << endl;
+}`,
+    task: "Print numbers 0 to 2 using a for loop in C++.",
+    initialCode: `// Use a for loop to print 0..2\n`,
+    expectedOutput: ["(rendered)"],
+    hints: ["Remember to declare loop variable type.", "Use cout for output."],
+    nextSkill: null,
+  },
 };
 
 export default lessons;
