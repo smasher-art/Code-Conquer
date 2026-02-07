@@ -30,7 +30,7 @@ export default function Learn() {
       id: "root",
       position: { x: 250, y: 0 },
       data: { label: "Paths" },
-      style: { ...baseNodeStyle, background: "white", color: "black", border: "2px solid black" },
+      style: { ...baseNodeStyle, background: "#ffffff", color: "#000000", border: "1px solid rgba(255,255,255,0.25)" },
     }
 
     // split languages into top-level (no parent) and children (with parent)
@@ -47,10 +47,10 @@ export default function Learn() {
         data: { label: lang.label },
         style: {
           ...baseNodeStyle,
-          background: unlocked ? "black" : "#00000010",
-          color: unlocked ? "white" : "#00000070",
+          background: unlocked ? "#ffffff" : "rgba(255,255,255,0.06)",
+          color: unlocked ? "#000000" : "rgba(255,255,255,0.55)",
           cursor: "pointer",
-          border: unlocked ? "2px solid black" : "1px solid #e5e7eb",
+          border: "1px solid rgba(255,255,255,0.12)",
         },
       }
     })
@@ -80,10 +80,10 @@ export default function Learn() {
             ...baseNodeStyle,
             width: 90,
             height: 90,
-            background: unlocked ? "black" : "#00000010",
-            color: unlocked ? "white" : "#00000070",
+            background: unlocked ? "#ffffff" : "rgba(255,255,255,0.06)",
+            color: unlocked ? "#000000" : "rgba(255,255,255,0.55)",
             cursor: "pointer",
-            border: unlocked ? "2px solid black" : "1px solid #e5e7eb",
+            border: "1px solid rgba(255,255,255,0.12)",
           },
         }
       })
@@ -105,7 +105,7 @@ export default function Learn() {
       id: `e-root-${lang.slug}`,
       source: "root",
       target: lang.slug,
-      style: { strokeWidth: 2, strokeOpacity: ((progress.skills?.unlocked?.[lang.slug]) || []).length ? 1 : 0.4 },
+      style: { stroke: 'rgba(255,255,255,0.45)', strokeWidth: 2, strokeOpacity: ((progress.skills?.unlocked?.[lang.slug]) || []).length ? 1 : 0.35 },
     }))
 
     const parentEdges = children
@@ -114,7 +114,7 @@ export default function Learn() {
         id: `e-${lang.parent}-${lang.slug}`,
         source: lang.parent,
         target: lang.slug,
-        style: { strokeWidth: 2, strokeOpacity: ((progress.skills?.unlocked?.[lang.slug]) || []).length ? 1 : 0.4 },
+        style: { stroke: 'rgba(255,255,255,0.45)', strokeWidth: 2, strokeOpacity: ((progress.skills?.unlocked?.[lang.slug]) || []).length ? 1 : 0.35 },
       }))
 
     return [...rootEdges, ...parentEdges]
@@ -124,7 +124,7 @@ export default function Learn() {
     <section className="flex-1 flex flex-col items-center pt-10 gap-4">
 
       <h1 className="text-5xl font-semibold">LEARN</h1>
-      <p className="text-black/60">Choose a language path</p>
+      <p className="text-white/60">Choose a path</p>
 
       <div className="w-full h-175 px-4">
         <ReactFlow
@@ -145,7 +145,7 @@ export default function Learn() {
         </ReactFlow>
       </div>
 
-      <p className="text-sm text-black/50 italic">* Paths shown are driven from lesson data</p>
+      <p className="text-sm text-white/40 italic">* Paths are derived from lesson data</p>
 
     </section>
   )

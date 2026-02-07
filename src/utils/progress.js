@@ -35,7 +35,10 @@ export function getProgress() {
   try {
     const data = localStorage.getItem(STORAGE_KEY)
     const parsed = data ? JSON.parse(data) : null
-    return migrateProgress(parsed)
+    const save = migrateProgress(parsed)
+    // Keep unlocks consistent with prereqs/level.
+    autoUnlockEligibleSkills(save)
+    return save
   } catch {
     return getDefaultProgress()
   }
@@ -75,6 +78,10 @@ function getDefaultProgress() {
       unlocked: unlockedSkills,
       completed: completedSkills,
     },
+    inventory: {
+      hintTokens: 0,
+    },
+    hintsRevealed: {},
     meta: {
       createdAt,
       updatedAt: createdAt,
@@ -91,6 +98,9 @@ function migrateProgress(parsed) {
     parsed.player.xpUnspent = clampNonNegative(parsed.player.xpUnspent)
     parsed.skills.unlocked = parsed.skills.unlocked || {}
     parsed.skills.completed = parsed.skills.completed || {}
+    parsed.inventory = parsed.inventory || { hintTokens: 0 }
+    parsed.inventory.hintTokens = clampNonNegative(parsed.inventory.hintTokens)
+    parsed.hintsRevealed = parsed.hintsRevealed || {}
     parsed.meta = parsed.meta || { createdAt: nowIso(), updatedAt: nowIso() }
     return parsed
   }
@@ -110,6 +120,10 @@ function migrateProgress(parsed) {
         unlocked: parsed.unlockedSkills || {},
         completed: parsed.completedSkills || {},
       },
+      inventory: {
+        hintTokens: 0,
+      },
+      hintsRevealed: {},
       meta: {
         createdAt,
         updatedAt: createdAt,
@@ -118,6 +132,48 @@ function migrateProgress(parsed) {
   }
 
   return getDefaultProgress()
+}
+
+function getPrereqsForLesson(lesson) {
+  if (Array.isArray(lesson.prereqs)) return lesson.prereqs
+  // Default: linear prereq based on order in the same language.
+  const sameLang = Object.values(lessons).filter((l) => l.lang === lesson.lang)
+  const sorted = sameLang.slice().sort((a, b) => (a.order || 0) - (b.order || 0))
+  const idx = sorted.findIndex((l) => l.skill === lesson.skill)
+  if (idx > 0) return [sorted[idx - 1].skill]
+  return []
+}
+
+function autoUnlockEligibleSkills(save) {
+  if (!save?.skills) return
+  if (!save.skills.unlocked) save.skills.unlocked = {}
+  if (!save.skills.completed) save.skills.completed = {}
+
+  const level = getLevelFromTotalXp(save.player?.xpTotal || 0)
+
+  let changed = false
+
+  for (const lesson of Object.values(lessons)) {
+    const lang = lesson.lang
+    const skill = lesson.skill
+    if (!lang || !skill) continue
+
+    const minLevel = Number(lesson.minLevel || 1)
+    if (level < minLevel) continue
+
+    const completed = save.skills.completed[lang] || []
+    const prereqs = getPrereqsForLesson(lesson)
+    const prereqsMet = prereqs.every((p) => completed.includes(p))
+    if (!prereqsMet) continue
+
+    if (!save.skills.unlocked[lang]) save.skills.unlocked[lang] = []
+    if (!save.skills.unlocked[lang].includes(skill)) {
+      save.skills.unlocked[lang].push(skill)
+      changed = true
+    }
+  }
+
+  return changed
 }
 
 function setProgress(save) {
@@ -151,6 +207,7 @@ export function awardXp(amount) {
   const delta = clampNonNegative(amount)
   save.player.xpTotal = clampNonNegative(save.player.xpTotal + delta)
   save.player.xpUnspent = clampNonNegative(save.player.xpUnspent + delta)
+  autoUnlockEligibleSkills(save)
   setProgress(save)
   return save.player
 }
@@ -208,7 +265,22 @@ export function completeSkill(lang, skill) {
     progress.skills.completed[lang].push(skill)
   }
 
+  autoUnlockEligibleSkills(progress)
   setProgress(progress)
+}
+
+export function getHintsRevealed(lessonId) {
+  const save = getProgress()
+  return clampNonNegative(save.hintsRevealed?.[lessonId] || 0)
+}
+
+export function revealHint(lessonId, count = 1) {
+  const save = getProgress()
+  if (!save.hintsRevealed) save.hintsRevealed = {}
+  const current = clampNonNegative(save.hintsRevealed[lessonId] || 0)
+  save.hintsRevealed[lessonId] = current + clampNonNegative(count)
+  setProgress(save)
+  return save.hintsRevealed[lessonId]
 }
 
 export function unlockNextSkill(lang, nextSkill) {

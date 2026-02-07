@@ -22,7 +22,7 @@ export default function LearnPath() {
       {/* Header */}
       <div className="text-center">
         <h1 className="text-4xl font-semibold">{lang.toUpperCase()} Path</h1>
-        <p className="text-black/60 mt-2">Unlock skills by completing them</p>
+        <p className="text-white/60 mt-2">Trials unlock through mastery</p>
       </div>
 
       {/* Path */}
@@ -36,17 +36,19 @@ export default function LearnPath() {
           const completed = (save.skills?.completed?.[lang] || []).includes(id)
           const status = completed ? "completed" : unlocked ? "active" : "locked"
 
+          const displayLabel = status === "locked" ? "???" : label
+
           return (
             <div key={id} className="flex flex-col items-center w-full">
                   <div
                     className={`
-                      w-full px-5 py-4 rounded-xl border-2 text-center transition
+                      w-full px-5 py-4 rounded-xl border text-center transition
                       ${
                         status === "active"
-                          ? "border-black bg-black text-white cursor-pointer"
+                          ? "border-white/15 bg-white text-black cursor-pointer"
                           : status === "completed"
-                          ? "border-black bg-white text-black opacity-70 cursor-pointer"
-                          : "border-black/20 bg-white text-black/40 cursor-not-allowed"
+                          ? "border-white/10 bg-white/5 text-white opacity-70 cursor-pointer"
+                          : "border-white/10 bg-white/5 text-white/50 cursor-not-allowed"
                       }
                     `}
                     onClick={() => {
@@ -55,18 +57,18 @@ export default function LearnPath() {
                         navigate(`/learn/${lang}/${id}`)
                       }
                     }}
-                    title={status === "locked" ? "Complete previous skill to unlock" : "Open lesson"}
+                    title={status === "locked" ? "Sealed" : "Open trial"}
                   >
-                <p className="font-medium">{label}</p>
+                <p className="font-medium">{displayLabel}</p>
 
                 <p className="text-sm mt-1">
                   {status === "completed" && "✔ Completed"}
                   {status === "active" && "▶ Start"}
-                  {status === "locked" && "🔒 Locked"}
+                  {status === "locked" && "Sealed"}
                 </p>
               </div>
 
-              {!isLast && <div className="w-px h-10 bg-black/20" />}
+              {!isLast && <div className="w-px h-10 bg-white/10" />}
             </div>
           )
         })}

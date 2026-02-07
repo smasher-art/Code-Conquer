@@ -7,6 +7,9 @@ import Learn from '@p/Learn'
 import LearnPath from '@p/LearnPath'
 import Lesson from '@p/Lesson'
 import Profile from '@p/Profile'
+import Login from '@p/Login'
+import Signup from '@p/Signup'
+import Shrine from '@p/Shrine'
 import Navbar from '@c/navbar/Navbar'
 import ScrollToTop from '@c/ScrollToTop'
 
@@ -14,14 +17,14 @@ import ScrollToTop from '@c/ScrollToTop'
 
 function App() {
   return (
-    <div className="min-h-dvh w-full bg-white relative font-JetBrains">
+    <div className="min-h-dvh w-full bg-zinc-950 text-zinc-100 relative font-JetBrains">
       {/* Background */}
       <div
         className="fixed inset-0"
         style={{
           backgroundImage: `
-            linear-gradient(45deg, transparent 49%, #e5e7eb 49%, #e5e7eb 51%, transparent 51%),
-            linear-gradient(-45deg, transparent 49%, #e5e7eb 49%, #e5e7eb 51%, transparent 51%)
+            linear-gradient(45deg, transparent 49%, rgba(255,255,255,0.06) 49%, rgba(255,255,255,0.06) 51%, transparent 51%),
+            linear-gradient(-45deg, transparent 49%, rgba(255,255,255,0.06) 49%, rgba(255,255,255,0.06) 51%, transparent 51%)
           `,
           backgroundSize: "45px 45px",
           WebkitMaskImage:
@@ -43,6 +46,9 @@ function App() {
           <Route path='/learn/:lang' element={<LearnPath/>} />
           <Route path='/learn/:lang/:skill' element={<Lesson/>} />
           <Route path='/profile' element={<Profile/>} />
+          <Route path='/shrine' element={<Shrine/>} />
+          <Route path='/login' element={<Login/>} />
+          <Route path='/signup' element={<Signup/>} />
         </Routes>
 
 

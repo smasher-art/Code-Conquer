@@ -1,3 +1,33 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "99396e54-ce24-4ebd-bd8d-6ce5c053ad2a",
+      "email": "amitosh1999@gmail.com",
+      "displayName": "Tarnished",
+      "passwordHash": "$2a$10$WssTMMyd.fR54wJgBXtZ0.jQFmKmz6F2ciPjdYPrTdQ7ZhaJ43Kku",
+      "save": {
+        "version": 2,
+        "player": {
+          "id": "server",
+          "displayName": "Tarnished",
+          "xpTotal": 0,
+          "xpUnspent": 0
+        },
+        "skills": {
+          "unlocked": {},
+          "completed": {}
+        },
+        "inventory": {
+          "hintTokens": 0
+        },
+        "hintsRevealed": {},
+        "meta": {
+          "createdAt": "2026-02-07T03:47:41.988Z",
+          "updatedAt": "2026-02-07T03:47:41.988Z"
+        }
+      },
+      "createdAt": "2026-02-07T03:47:41.988Z",
+      "updatedAt": "2026-02-07T03:47:41.988Z"
+    }
+  ]
 }

@@ -8,7 +8,7 @@ export default function Home() {
         <h1 className="text-8xl font-Poppins font-semibold">
           Level Up
         </h1>
-        <h2 className="text-4xl text-black/70">
+        <h2 className="text-4xl text-white/70">
           Your Coding Skills
         </h2>
       </div>
@@ -21,9 +21,9 @@ export default function Home() {
       <NavLink
         to="/learn"
         className="
-        text-xl px-5 py-2.5 border-2 border-black rounded-lg
-        bg-black text-white
-        hover:bg-black/90 active:scale-95 transition
+        text-xl px-5 py-2.5 border border-white/15 rounded-lg
+        bg-white text-black
+        hover:bg-white/90 active:scale-95 transition
         "
       >
         Start Learning
