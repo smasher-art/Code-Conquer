@@ -6,6 +6,9 @@ import { judgeOutput } from "@u/judge"
 import {
   isSkillUnlocked,
   isSkillCompleted,
+  getProgress,
+  awardXp,
+  getLevelFromTotalXp,
   completeSkill,
   unlockNextSkill,
 } from "@u/progress"
@@ -25,6 +28,7 @@ export default function Lesson() {
   const [judgeResult, setJudgeResult] = useState(null) // { isCorrect, feedback }
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showHints, setShowHints] = useState(false)
+  const [levelUp, setLevelUp] = useState(false)
 
   // Monaco language mapping and runtime support
   const languageMap = {
@@ -77,6 +81,7 @@ export default function Lesson() {
     setOutput([])
     setJudgeResult(null)
     setIsRunning(false)
+    setLevelUp(false)
 
     if (editorRef.current) {
       try {
@@ -238,6 +243,11 @@ export default function Lesson() {
     setJudgeResult(result)
 
     if (result.isCorrect) {
+      const beforeLevel = getLevelFromTotalXp(getProgress().player?.xpTotal || 0)
+      awardXp(lesson.xp || 0)
+      const afterLevel = getLevelFromTotalXp(getProgress().player?.xpTotal || 0)
+      setLevelUp(afterLevel > beforeLevel)
+
       completeSkill(lang, skill)
       if (lesson.nextSkill) {
         unlockNextSkill(lang, lesson.nextSkill)
@@ -371,6 +381,9 @@ export default function Lesson() {
               {judgeResult.isCorrect ? "✓ " : "✗ "}
               {judgeResult.feedback}
             </div>
+            {judgeResult.isCorrect && levelUp && (
+              <div className="text-xs mt-1 opacity-80">Level up.</div>
+            )}
           </div>
         )}
 

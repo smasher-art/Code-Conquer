@@ -1,13 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom"
 import lessons from "@u/lessons"
-import {
-  isSkillUnlocked,
-  isSkillCompleted,
-} from "@u/progress"
+import useProgress from "@/hooks/useProgress"
 
 export default function LearnPath() {
   const { lang } = useParams()
   const navigate = useNavigate()
+  const save = useProgress()
 
   // Gather lessons for this language in insertion order
   const treeLessons = Object.values(lessons).filter((l) => l.lang === lang)
@@ -34,11 +32,9 @@ export default function LearnPath() {
           const id = lesson.skill
           const label = lesson.title
 
-          const status = isSkillCompleted(lang, id)
-            ? "completed"
-            : isSkillUnlocked(lang, id)
-            ? "active"
-            : "locked"
+          const unlocked = (save.skills?.unlocked?.[lang] || []).includes(id)
+          const completed = (save.skills?.completed?.[lang] || []).includes(id)
+          const status = completed ? "completed" : unlocked ? "active" : "locked"
 
           return (
             <div key={id} className="flex flex-col items-center w-full">

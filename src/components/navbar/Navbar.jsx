@@ -2,10 +2,13 @@ import React from 'react'
 
 import { navlinks } from '@u/constants/navbar'
 import { NavLink } from 'react-router-dom'
+import usePlayer from '@/hooks/usePlayer'
 
 
 
 export default function Navbar() {
+  const { player, level, xp } = usePlayer()
+
   return (
     <div
     className='h-20 p-4 flex items-center justify-between
@@ -32,10 +35,27 @@ export default function Navbar() {
         }
       </div>
 
+      {/* HUD */}
+      <div className='flex items-center gap-4'>
+        <div className='flex flex-col items-end leading-tight'>
+          <div className='text-xs text-black/60'>Level {level}</div>
+          <div className='text-xs text-black/60'>{player.xpUnspent} XP</div>
+        </div>
+        <div className='w-44'>
+          <div className='h-2 rounded bg-black/10 overflow-hidden'>
+            <div className='h-full bg-black' style={{ width: `${xp.pct}%` }} />
+          </div>
+          <div className='text-[10px] text-black/50 mt-1 text-right'>
+            {xp.intoLevel}/{xp.span}
+          </div>
+        </div>
+
       <button
       >
         Login
       </button>
+
+      </div>
 
     </div>
   )

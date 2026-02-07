@@ -1,12 +1,60 @@
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
-import { promisify } from 'util';
 import child_process from 'child_process';
 
-const exec = promisify(child_process.exec);
-
 const TMP_PREFIX = 'bebo-run-';
+
+function runProcess(cmd, args, { cwd, stdin = '', timeout = 5000, maxBuffer = 200 * 1024 } = {}) {
+  return new Promise((resolve) => {
+    const child = child_process.spawn(cmd, args, {
+      cwd,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    })
+
+    let stdout = ''
+    let stderr = ''
+    let killed = false
+
+    const timer = setTimeout(() => {
+      killed = true
+      try { child.kill('SIGKILL') } catch (_) {}
+    }, timeout)
+
+    child.stdout.on('data', (d) => {
+      stdout += d.toString('utf8')
+      if (stdout.length > maxBuffer) {
+        killed = true
+        try { child.kill('SIGKILL') } catch (_) {}
+      }
+    })
+
+    child.stderr.on('data', (d) => {
+      stderr += d.toString('utf8')
+      if (stderr.length > maxBuffer) {
+        killed = true
+        try { child.kill('SIGKILL') } catch (_) {}
+      }
+    })
+
+    child.on('error', (err) => {
+      clearTimeout(timer)
+      resolve({ code: 1, stdout, stderr: stderr || String(err) })
+    })
+
+    child.on('close', (code) => {
+      clearTimeout(timer)
+      resolve({ code: killed ? 124 : (code ?? 1), stdout, stderr })
+    })
+
+    try {
+      if (stdin) child.stdin.write(String(stdin))
+      child.stdin.end()
+    } catch (_) {
+      // ignore
+    }
+  })
+}
 
 // Supported language keys and aliases
 export const SUPPORTED_LANGUAGES = {
@@ -52,52 +100,42 @@ export async function runCode(language, code, stdin = '') {
     await fs.writeFile(sourcePath, code, 'utf8');
 
     let compileOutput = '';
-    let runCmd = null;
+    let run = null;
 
     if (language === 'python') {
-      runCmd = `python3 ${sourcePath}`;
+      run = () => runProcess('python3', [sourcePath], { stdin, timeout: 5000 });
     } else if (language === 'c') {
       const outExe = path.join(tmpDir, 'main');
-      try {
-        const { stdout, stderr } = await exec(`gcc ${sourcePath} -O2 -std=c11 -o ${outExe}`, { timeout: 10000 });
-        compileOutput = (stdout || '') + (stderr || '');
-      } catch (e) {
-        compileOutput = (e.stdout || '') + (e.stderr || '') + '\n' + (e.message || String(e));
-        return { compileOutput, stdout: '', stderr: '', error: e.message || 'Compilation failed' };
+      const cRes = await runProcess('gcc', [sourcePath, '-O2', '-std=c11', '-o', outExe], { timeout: 10000 })
+      compileOutput = (cRes.stdout || '') + (cRes.stderr || '')
+      if (cRes.code !== 0) {
+        return { compileOutput, stdout: '', stderr: '', error: 'Compilation failed' };
       }
-      runCmd = outExe;
+      run = () => runProcess(outExe, [], { stdin, timeout: 5000 })
     } else if (language === 'cpp') {
       const outExe = path.join(tmpDir, 'main');
-      try {
-        const { stdout, stderr } = await exec(`g++ ${sourcePath} -O2 -std=c++17 -o ${outExe}`, { timeout: 10000 });
-        compileOutput = (stdout || '') + (stderr || '');
-      } catch (e) {
-          compileOutput = (e.stdout || '') + (e.stderr || '') + '\n' + (e.message || String(e));
-          return { compileOutput, stdout: '', stderr: '', error: e.message || 'Compilation failed' };
+      const cRes = await runProcess('g++', [sourcePath, '-O2', '-std=c++17', '-o', outExe], { timeout: 10000 })
+      compileOutput = (cRes.stdout || '') + (cRes.stderr || '')
+      if (cRes.code !== 0) {
+        return { compileOutput, stdout: '', stderr: '', error: 'Compilation failed' };
       }
-      runCmd = outExe;
+      run = () => runProcess(outExe, [], { stdin, timeout: 5000 })
     } else if (language === 'java') {
-      try {
-        const { stdout, stderr } = await exec(`javac ${sourcePath}`, { timeout: 15000, cwd: tmpDir });
-        compileOutput = (stdout || '') + (stderr || '');
-      } catch (e) {
-          compileOutput = (e.stdout || '') + (e.stderr || '') + '\n' + (e.message || String(e));
-          return { compileOutput, stdout: '', stderr: '', error: e.message || 'Compilation failed' };
+      const cRes = await runProcess('javac', [sourceName], { timeout: 15000, cwd: tmpDir })
+      compileOutput = (cRes.stdout || '') + (cRes.stderr || '')
+      if (cRes.code !== 0) {
+        return { compileOutput, stdout: '', stderr: '', error: 'Compilation failed' };
       }
-      runCmd = `java -cp ${tmpDir} Main`;
+      run = () => runProcess('java', ['-cp', tmpDir, 'Main'], { stdin, timeout: 5000 })
     } else if (language === 'go') {
-      runCmd = `go run ${sourcePath}`;
+      run = () => runProcess('go', ['run', sourcePath], { stdin, timeout: 8000 })
     }
 
-    try {
-      const { stdout, stderr } = await exec(runCmd, { timeout: 5000, maxBuffer: 200 * 1024 });
-      return { compileOutput, stdout, stderr, error: null };
-    } catch (e) {
-      const stdout = e.stdout || '';
-      const stderr = e.stderr || '';
-      console.error('[runner] exec error', String(e), e.stdout ? '[stdout]' : '', e.stdout || '', e.stderr ? '[stderr]' : '', e.stderr || '')
-      return { compileOutput, stdout, stderr, error: 'Execution failed or timed out' };
-    }
+    if (!run) return { compileOutput, stdout: '', stderr: '', error: 'Runtime not available' }
+
+    const rRes = await run()
+    const error = rRes.code === 0 ? null : (rRes.code === 124 ? 'Execution timed out' : 'Execution failed')
+    return { compileOutput, stdout: rRes.stdout || '', stderr: rRes.stderr || '', error };
   } finally {
     try { await fs.rm(tmpDir, { recursive: true, force: true }); } catch (_) {}
   }
