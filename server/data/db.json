@@ -14,7 +14,20 @@
           "xpUnspent": 0
         },
         "skills": {
-          "unlocked": {},
+          "unlocked": {
+            "javascript": [
+              "variables"
+            ],
+            "react": [
+              "components"
+            ],
+            "python": [
+              "basics"
+            ],
+            "cpp": [
+              "basics"
+            ]
+          },
           "completed": {}
         },
         "inventory": {
@@ -27,7 +40,7 @@
         }
       },
       "createdAt": "2026-02-07T03:47:41.988Z",
-      "updatedAt": "2026-02-07T03:47:41.988Z"
+      "updatedAt": "2026-02-07T03:51:45.500Z"
     }
   ]
 }

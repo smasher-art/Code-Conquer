@@ -56,7 +56,8 @@ export default function Signup() {
               setError(null)
               try {
                 await signup({ email, password, displayName })
-                navigate("/profile")
+                // Full reload so auth-dependent UI initializes cleanly.
+                window.location.assign("/profile")
               } catch (e) {
                 setError(String(e.message || e))
               } finally {

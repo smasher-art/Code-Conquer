@@ -112,7 +112,7 @@ export default function Lesson() {
           setAvailableLanguages(data.languages.map((l) => l.key))
         }
       } catch (e) {
-        // ignore - server may be offline
+        // ignore - server may be offline or on a different port
       }
     })()
 

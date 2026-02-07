@@ -47,7 +47,8 @@ export default function Login() {
               setError(null)
               try {
                 await login({ email, password })
-                navigate("/profile")
+                // Full reload so auth-dependent UI initializes cleanly.
+                window.location.assign("/profile")
               } catch (e) {
                 setError(String(e.message || e))
               } finally {
